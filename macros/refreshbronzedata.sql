@@ -1,0 +1,15 @@
+{% macro refresh_bronze_data(srctbl,tgttbl) %}
+{% if execute %}
+{% set load_date_qry = "select to_char(CONVERT_TIMEZONE('Asia/Kolkata',current_timestamp()),'yyyyMMdd')" %}
+{% set get_load_date = dbt_utils.get_single_value(load_date_qry) %}
+
+{{ log('------------------------------------') }}
+{{ log(get_load_date) }}
+{{ log('------------------------------------') }}
+begin;
+use database {{ target.database }};
+use schema bronze;
+call LOAD_CSV_ADLS_BRONZE('{{srctbl}}','{{tgttbl}}','{{get_load_date}}');
+commit;
+{% endif %}
+{% endmacro %}

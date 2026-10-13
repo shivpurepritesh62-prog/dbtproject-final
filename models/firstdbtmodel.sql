@@ -1,0 +1,1 @@
+select * from  DBT_PROJECT_DEV.BRONZE.ADDRESS

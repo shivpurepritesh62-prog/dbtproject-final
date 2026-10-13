@@ -1,0 +1,29 @@
+version: 2
+
+sources:
+  - name: bronze
+    description: "Bronze layer source tables loaded into Snowflake."
+    database: DBT_PROJECT_DEV
+    schema: BRONZE
+
+    tables:
+      - name: ADDRESS
+        description: "Bronze Address table."
+      - name: CUSTOMER
+        description: "Bronze Customer table."
+      - name: CUSTOMERADDRESS
+        description: "Bronze Customer Address table."
+      - name: PRODUCT
+        description: "Bronze Product table."
+      - name: PRODUCTCATEGORY
+        description: "Bronze Product Category table."
+      - name: PRODUCTDESCRIPTION
+        description: "Bronze Product Description table."
+      - name: PRODUCTMODEL
+        description: "Bronze Product Model table."
+      - name: PRODUCTMODELPRODUCTDESCRIPTION
+        description: "Bronze Product Model Product Description table."
+      - name: SALESORDERDETAIL
+        description: "Bronze Sales Order Detail table."
+      - name: SALESORDERHEADER
+        description: "Bronze Sales Order Header table."
