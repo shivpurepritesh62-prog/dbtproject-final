@@ -1,0 +1,10 @@
+{{
+    config(materialized = 'incremental',
+           incremental_strategy = 'merge',
+           pre_hook = " {{refresh_bronze_data('ProductCategory','PRODUCTCATEGORY')}} "
+    )
+}}
+
+select {{get_cleanse_fields('BRONZE','PRODUCTCATEGORY')}},
+       current_timestamp() as ETL_MODIFIEDDATE
+from {{ source('bronze','PRODUCTCATEGORY')}}

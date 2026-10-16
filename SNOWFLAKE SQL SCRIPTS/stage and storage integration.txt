@@ -1,0 +1,74 @@
+create or replace  database dbt_project_dev ;
+create or replace schema bronze;
+
+create or replace transient table Address (
+  AddressID string,
+  AddressLine1 string,
+  AddressLine2 string,
+  City string,
+  StateProvince string,
+  CountryRegion string,
+  PostalCode string,
+  rowguid string,
+  ModifiedDate string
+);
+
+
+CREATE OR REPLACE STORAGE INTEGRATION SF_INT_ADLS_dbt 
+  TYPE = EXTERNAL_STAGE
+  STORAGE_PROVIDER = 'AZURE'
+  ENABLED = TRUE
+  AZURE_TENANT_ID = '154e50cb-d7cb-45f1-abff-3b49957e22b9'
+  STORAGE_ALLOWED_LOCATIONS = ('azure://sadbtlanding.blob.core.windows.net/landings');
+
+DESC STORAGE INTEGRATION SF_INT_ADLS_dbt;
+---ue8gmysnowflakepacint_1790691638489
+
+CREATE OR REPLACE FILE FORMAT dbt_csv_format_1
+  TYPE = CSV
+  record_delimiter = '\n'
+  FIELD_DELIMITER = ','
+  SKIP_HEADER = 1
+  EMPTY_FIELD_AS_NULL = true
+  FIELD_OPTIONALLY_ENCLOSED_BY = '"'
+  ;
+
+
+
+CREATE OR REPLACE STAGE STG_dbt_ADLS
+  STORAGE_INTEGRATION = SF_INT_ADLS_dbt
+  URL = 'azure://sadbtlanding.blob.core.windows.net/landings/'
+  FILE_FORMAT = dbt_csv_format_1;
+
+--qca4bnsnowflakepacint_1710836138625
+
+
+show STAGES ;
+
+ls@STG_dbt_ADLS
+
+SELECT
+    $1::NUMBER        AS product_id,
+    $2::VARCHAR       AS product_name,
+    $3::VARCHAR       AS category,
+    $4::NUMBER(10,2)  AS price,
+    METADATA$FILENAME AS source_file,
+    METADATA$FILE_ROW_NUMBER AS source_row
+FROM @STG_dbt_ADLS/20260929/Product.csv
+    (FILE_FORMAT => 'dbt_csv_format_1');
+
+
+
+select * from DBT_PROJECT_DEV.BRONZE.ADDRESS
+
+SELECT $1, $2, $3, $4
+FROM @STG_DBT_ADLS/20261005/Address.csv
+(FILE_FORMAT => 'dbt_csv_format_1')
+LIMIT 10;
+
+COPY INTO bronze.address
+FROM @STG_dbt_ADLS/20261005/
+FILES = ('Address.csv')
+FILE_FORMAT = (FORMAT_NAME = dbt_csv_format_1 )
+FORCE = TRUE
+ON_ERROR = 'ABORT_STATEMENT';

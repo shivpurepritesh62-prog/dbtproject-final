@@ -1,0 +1,27 @@
+CREATE OR REPLACE PROCEDURE DBT_PROJECT_DEV.BRONZE.LOAD_CSV_ADLS_BRONZE(
+    SOURCETABLE VARCHAR, TARGETTABLE VARCHAR, LOAD_DATE VARCHAR)
+RETURNS VARCHAR
+LANGUAGE SQL
+EXECUTE AS CALLER
+AS
+$$
+DECLARE
+  full_table VARCHAR;
+  stmt VARCHAR;
+BEGIN
+  full_table := 'DBT_PROJECT_DEV.BRONZE.' || :TARGETTABLE;
+
+  TRUNCATE TABLE IDENTIFIER(:full_table);
+
+  stmt := 'COPY INTO ' || :full_table ||
+          ' FROM @STG_DBT_ADLS/' || :LOAD_DATE || '/' || :SOURCETABLE || '.csv' ||
+          ' FILE_FORMAT = (FORMAT_NAME = dbt_csv_format_1)' ||
+          ' ON_ERROR = ABORT_STATEMENT';
+
+  EXECUTE IMMEDIATE :stmt;
+  RETURN 'Loaded ' || :full_table || ' from ' || :LOAD_DATE || '/' || :SOURCETABLE || '.csv';
+END;
+$$;
+
+call DBT_PROJECT_DEV.BRONZE.LOAD_CSV_ADLS_BRONZE('address','ADDRESS  ','20261005')
+
